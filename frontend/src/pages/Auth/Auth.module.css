@@ -1,0 +1,205 @@
+.main {
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px;
+    width: 100%;
+    max-width: 440px;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 80px rgba(44, 32, 32, 0.08);
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: var(--dark);
+    text-align: center;
+    margin-bottom: 40px;
+}
+.logo span { color: var(--deep-rose); }
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.back {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-align: left;
+    padding: 0;
+    transition: color 0.3s;
+    width: fit-content;
+}
+.back:hover { color: var(--navy); }
+
+.title {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--dark);
+    line-height: 1.2;
+}
+
+.sub {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 300;
+    margin-top: -8px;
+}
+
+/* ROLE */
+.roleGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.roleCard {
+    padding: 28px 20px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.roleCard:hover {
+    border-color: var(--navy);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 31, 63, 0.1);
+}
+
+.roleIcon { font-size: 36px; }
+
+.roleName {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--dark);
+}
+
+.roleDesc {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+/* PHONE */
+.phoneInput {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+.phoneInput:focus-within {
+    border-color: var(--navy);
+}
+
+.phonePrefix {
+    padding: 16px 16px;
+    background: var(--cream);
+    font-size: 15px;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    font-weight: 500;
+}
+
+.input {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text);
+    background: white;
+    letter-spacing: 2px;
+}
+
+/* OTP */
+.otpGrid {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 8px 0;
+}
+
+.otpInput {
+    width: 64px;
+    height: 64px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--navy);
+    font-family: var(--font-body);
+    outline: none;
+    transition: border-color 0.3s;
+}
+.otpInput:focus {
+    border-color: var(--navy);
+}
+
+/* BUTTONS */
+.btnPrimary {
+    width: 100%;
+    padding: 16px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+}
+.btnPrimary:hover:not(:disabled) {
+    background: var(--navy-light);
+    transform: translateY(-1px);
+}
+.btnPrimary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.hint {
+    font-size: 13px;
+    color: var(--text-light);
+    text-align: center;
+    font-weight: 300;
+}
+
+.resend {
+    background: none;
+    border: none;
+    color: var(--deep-rose);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-body);
+    text-decoration: underline;
+}

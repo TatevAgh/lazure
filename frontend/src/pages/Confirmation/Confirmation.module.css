@@ -1,0 +1,131 @@
+.main {
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    padding-top: calc(var(--nav-height) + 24px);
+}
+
+.card {
+    background: white;
+    border-radius: 24px;
+    padding: 56px 48px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 80px rgba(44, 32, 32, 0.08);
+}
+
+.checkmark {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: white;
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+
+.sub {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 32px;
+    font-weight: 300;
+}
+
+.details {
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+.detailRow:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.detailLabel {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+
+.detailValue {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--dark);
+}
+
+.note {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 32px;
+    font-weight: 300;
+}
+
+.btns {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btnPrimary {
+    width: 100%;
+    padding: 16px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btnPrimary:hover {
+    background: var(--navy-light);
+    transform: translateY(-1px);
+}
+
+.btnGhost {
+    width: 100%;
+    padding: 16px;
+    background: none;
+    color: var(--text-light);
+    border: 1px solid var(--border);
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btnGhost:hover {
+    border-color: var(--rose);
+    color: var(--deep-rose);
+}

@@ -1,0 +1,457 @@
+.main {
+    padding-top: var(--nav-height);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    background: var(--cream);
+}
+
+/* SIDEBAR */
+.sidebar {
+    background: var(--warm-white);
+    border-right: 1px solid var(--border);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: var(--nav-height);
+    height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+}
+
+.profile {
+    text-align: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.artistPhoto {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 12px;
+    border: 2px solid var(--border);
+}
+.artistPhoto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profileName {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--dark);
+}
+
+.profileSpec {
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+.ratingBadge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 12px;
+    background: var(--blush);
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--deep-rose);
+}
+
+/* LINK BOX */
+.linkBox {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.linkLabel {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.linkValue {
+    font-size: 12px;
+    color: var(--navy);
+    font-weight: 500;
+    word-break: break-all;
+    margin-bottom: 10px;
+}
+
+.copyBtn {
+    width: 100%;
+    padding: 8px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background 0.3s;
+}
+.copyBtn:hover { background: var(--navy-light); }
+
+/* NAV */
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.navItem:hover { background: var(--blush); color: var(--dark); }
+.navActive { background: var(--navy) !important; color: white !important; }
+
+.logoutBtn {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    text-align: left;
+    padding: 12px 16px;
+    transition: color 0.3s;
+}
+.logoutBtn:hover { color: var(--deep-rose); }
+
+/* CONTENT */
+.content { padding: 40px 48px; }
+
+/* STATS */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.statCard {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: box-shadow 0.3s;
+}
+.statCard:hover { box-shadow: 0 8px 24px rgba(44,32,32,0.08); }
+
+.statValue {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--navy);
+}
+
+.statLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dark);
+    margin-top: 4px;
+}
+
+.statSub {
+    font-size: 11px;
+    color: var(--text-light);
+    margin-top: 2px;
+}
+
+/* SECTION HEADER */
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.sectionTitle {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--dark);
+}
+
+.sectionSub {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+/* TABS */
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab {
+    padding: 10px 24px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all 0.3s;
+}
+.tabActive {
+    color: var(--navy) !important;
+    border-bottom-color: var(--navy) !important;
+    font-weight: 500;
+}
+
+/* BOOKINGS */
+.bookingsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bookingCard {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 24px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: box-shadow 0.3s;
+}
+.bookingCard:hover { box-shadow: 0 8px 24px rgba(44,32,32,0.08); }
+
+.clientInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.clientAvatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--blush);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--deep-rose);
+    flex-shrink: 0;
+}
+
+.clientName {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--dark);
+}
+
+.clientPhone {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 2px;
+}
+
+.bookingService {
+    font-size: 13px;
+    color: var(--text-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    min-width: 120px;
+}
+
+.bookingDateTime {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bookingDate, .bookingTime {
+    font-size: 13px;
+    color: var(--text-light);
+}
+
+.statusBadge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.actionBtns {
+    display: flex;
+    gap: 8px;
+}
+
+.confirmBtn {
+    padding: 8px 16px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: background 0.3s;
+}
+.confirmBtn:hover { background: var(--navy-light); }
+
+.rejectBtn {
+    padding: 8px 12px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-light);
+    transition: all 0.3s;
+}
+.rejectBtn:hover { border-color: var(--deep-rose); color: var(--deep-rose); }
+
+/* SCHEDULE */
+.scheduleGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.scheduleDay {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: white;
+    border: 1px solid var(--border);
+}
+.scheduleDay:first-child { border-radius: 16px 16px 0 0; }
+.scheduleDay:last-child { border-radius: 0 0 16px 16px; }
+
+.scheduleDayName {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--dark);
+    min-width: 120px;
+}
+
+.scheduleToggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+/* PORTFOLIO */
+.portfolioGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.portfolioItem {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+.portfolioItem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.deletePhoto {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.portfolioItem:hover .deletePhoto { display: flex; }
+
+.uploadPlaceholder {
+    aspect-ratio: 1;
+    border-radius: 12px;
+    border: 2px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 13px;
+    transition: all 0.3s;
+}
+.uploadPlaceholder:hover {
+    border-color: var(--navy);
+    color: var(--navy);
+}
+
+.uploadIcon {
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--border);
+}
+
+.uploadBtn {
+    padding: 10px 24px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.uploadBtn:hover { background: var(--navy-light); }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .portfolioGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .content { padding: 24px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .bookingCard { flex-wrap: wrap; }
+}

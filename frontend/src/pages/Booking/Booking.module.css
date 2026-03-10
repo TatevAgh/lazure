@@ -1,0 +1,386 @@
+.main {
+    padding-top: var(--nav-height);
+    min-height: 100vh;
+    background: var(--cream);
+}
+
+.notFound {
+    text-align: center;
+    padding: 100px;
+    font-size: 20px;
+    color: var(--text-light);
+}
+
+/* HEADER */
+.header {
+    padding: 32px 60px;
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.back {
+    background: none;
+    border: none;
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: color 0.3s;
+    padding: 8px 0;
+}
+.back:hover { color: var(--navy); }
+
+.artistInfo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.artistPhoto {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+}
+
+.artistName {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--dark);
+}
+
+.artistSpecialty {
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* STEPS */
+.steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 32px 60px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 32px;
+    color: var(--text-light);
+    position: relative;
+}
+
+.step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+}
+
+.stepActive { color: var(--navy); }
+.stepDone { color: var(--deep-rose); }
+
+.stepNum {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.stepActive .stepNum {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+}
+
+.stepDone .stepNum {
+    background: var(--deep-rose);
+    color: white;
+    border-color: var(--deep-rose);
+}
+
+.stepLabel {
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* CONTENT */
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px 24px;
+}
+
+/* SERVICES */
+.serviceGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.serviceCard {
+    padding: 32px 24px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.serviceCard:hover {
+    border-color: var(--rose);
+    transform: translateY(-2px);
+}
+.serviceSelected {
+    border-color: var(--navy) !important;
+    background: rgba(0, 31, 63, 0.04);
+}
+
+.serviceIcon { font-size: 36px; margin-bottom: 12px; }
+.serviceName {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--dark);
+    margin-bottom: 6px;
+}
+.serviceDuration {
+    font-size: 12px;
+    color: var(--text-light);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+.servicePrice {
+    font-family: var(--font-display);
+    font-size: 18px;
+    color: var(--deep-rose);
+}
+
+/* CALENDAR */
+.calendar {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--border);
+    max-width: 480px;
+    margin: 0 auto 40px;
+}
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.calMonth {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--dark);
+}
+
+.calNav {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    color: var(--text);
+}
+.calNav:hover { background: var(--blush); }
+.calNavDisabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+.calNavDisabled:hover { background: white; }
+
+.calDays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin-bottom: 8px;
+}
+
+.calDayName {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 8px 0;
+}
+
+.calGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calEmpty { height: 44px; }
+
+.calDay {
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.calDay:hover:not(:disabled) { background: var(--blush); }
+
+.calDayPast {
+    color: var(--border) !important;
+    cursor: not-allowed !important;
+}
+
+.calDayToday {
+    color: var(--deep-rose);
+    font-weight: 600;
+    border: 1px solid var(--rose);
+}
+
+.calDaySelected {
+    background: var(--navy) !important;
+    color: white !important;
+    font-weight: 600;
+}
+
+/* TIME */
+.timeSection { margin-bottom: 40px; }
+
+.selectedDateLabel {
+    font-size: 15px;
+    color: var(--text-light);
+    margin-bottom: 24px;
+    font-weight: 300;
+}
+
+.timeGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.timeSlot {
+    padding: 12px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+.timeSlot:hover { border-color: var(--rose); color: var(--deep-rose); }
+.timeSelected {
+    background: var(--navy) !important;
+    border-color: var(--navy) !important;
+    color: white !important;
+}
+
+/* BUTTONS */
+.navBtns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.btnBack {
+    padding: 14px 32px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text);
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btnBack:hover { border-color: var(--rose); }
+
+.btnNext {
+    padding: 14px 40px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btnNext:hover:not(:disabled) {
+    background: var(--navy-light);
+    transform: translateY(-1px);
+}
+.btnNext:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btnConfirm {
+    padding: 14px 40px;
+    background: var(--deep-rose);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btnConfirm:hover:not(:disabled) {
+    background: var(--mauve);
+    transform: translateY(-1px);
+}
+.btnConfirm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .header { padding: 20px 24px; }
+    .steps { padding: 20px 24px; gap: 0; }
+    .stepLabel { display: none; }
+    .serviceGrid { grid-template-columns: repeat(2, 1fr); }
+    .timeGrid { grid-template-columns: repeat(4, 1fr); }
+}

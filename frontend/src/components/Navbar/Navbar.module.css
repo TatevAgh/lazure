@@ -1,0 +1,124 @@
+.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    height: var(--nav-height);
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(250, 247, 244, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    color: var(--dark);
+    text-decoration: none;
+}
+.logo span { color: var(--deep-rose); }
+
+.navLinks {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    list-style: none;
+}
+.navLinks a {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.navLinks a:hover { color: var(--deep-rose); }
+
+.navActions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btnOutline {
+    padding: 10px 24px;
+    border: 1px solid var(--navy);
+    background: transparent;
+    color: var(--navy);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 40px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+.btnOutline:hover {
+    background: var(--navy);
+    color: white;
+}
+
+.btnFilled {
+    padding: 10px 24px;
+    border: 1px solid var(--navy);
+    background: var(--navy);
+    color: white;
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 40px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+.btnFilled:hover {
+    background: var(--navy-light);
+    border-color: var(--navy-light);
+}
+
+/* Burger menu for mobile */
+.burger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+}
+.burger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--dark);
+    transition: all 0.3s;
+}
+
+/* Responsive */
+@media (max-width: 1130px) {
+    .nav { padding: 0 24px; }
+
+    .navLinks {
+        display: none;
+        position: fixed;
+        top: var(--nav-height);
+        left: 0; right: 0;
+        background: var(--warm-white);
+        flex-direction: column;
+        padding: 32px 24px;
+        border-bottom: 1px solid var(--border);
+        gap: 24px;
+    }
+    .navLinks.open { display: flex; }
+
+    .navActions { display: none; }
+
+    .burger { display: flex; }
+}
