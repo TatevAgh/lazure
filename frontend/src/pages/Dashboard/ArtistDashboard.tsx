@@ -1,195 +1,213 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { artists } from '../../data/mockData'
 import styles from './ArtistDashboard.module.css'
+import { getMyArtistProfile, type ArtistFull } from '../../api/artists'
+import { getMyBookings, updateBookingStatus, type BookingOut } from '../../api/bookings'
+import { clearAuth, isLoggedIn } from '../../api/auth'
 
-const mockBookings = [
-    { id: '1', clientName: 'Anna M.', service: 'Nail Art', date: 'March 15, 2026', time: '14:00', status: 'confirmed', phone: '+374 91 111 111' },
-    { id: '2', clientName: 'Sofia K.', service: 'Gel Polish', date: 'March 15, 2026', time: '16:00', status: 'pending', phone: '+374 93 222 222' },
-    { id: '3', clientName: 'Maria L.', service: 'Manicure', date: 'March 16, 2026', time: '11:00', status: 'confirmed', phone: '+374 94 333 333' },
-    { id: '4', clientName: 'Lara P.', service: 'Extensions', date: 'March 17, 2026', time: '13:00', status: 'pending', phone: '+374 95 444 444' },
-]
-
-const statusColor = {
-    confirmed: { bg: '#E8F5E8', text: '#5A8A5A', label: 'Confirmed' },
-    pending: { bg: '#FFF8E8', text: '#B8860B', label: 'Pending' },
-    cancelled: { bg: '#FDE8E8', text: '#B07060', label: 'Cancelled' },
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+    pending:   { bg: '#FFF8E1', color: '#F9A825' },
+    confirmed: { bg: '#E8F5E9', color: '#2E7D32' },
+    cancelled: { bg: '#FFEBEE', color: '#C62828' },
+    completed: { bg: '#F3E5F5', color: '#6A1B9A' },
+}
+const STATUS_LABELS: Record<string, string> = {
+    pending: 'Pending', confirmed: 'Confirmed', cancelled: 'Cancelled', completed: 'Completed',
 }
 
 const ArtistDashboard = () => {
     const navigate = useNavigate()
-    const artist = artists[0]
-    const [activeTab, setActiveTab] = useState<'bookings' | 'schedule' | 'portfolio'>('bookings')
-    const [bookingTab, setBookingTab] = useState<'upcoming' | 'past'>('upcoming')
 
+    const [profile,   setProfile]   = useState<ArtistFull | null>(null)
+    const [bookings,  setBookings]  = useState<BookingOut[]>([])
+    const [loading,   setLoading]   = useState(true)
+    const [activeNav, setActiveNav] = useState('bookings')
+    const [activeTab, setActiveTab] = useState('all')
 
-    const uniqueLink = `lazure.am/artist/${artist.username}`
+    useEffect(() => {
+        if (!isLoggedIn()) { navigate('/auth'); return }
+        Promise.all([getMyArtistProfile(), getMyBookings()])
+            .then(([p, b]) => { setProfile(p); setBookings(b) })
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    const handleStatus = async (id: number, status: string) => {
+        await updateBookingStatus(id, status)
+        setBookings(prev => prev.map(b => b.id === id ? { ...b, status: status as BookingOut['status'] } : b))
+    }
+
+    const pending   = bookings.filter(b => b.status === 'pending')
+    const confirmed = bookings.filter(b => b.status === 'confirmed')
+    const completed = bookings.filter(b => b.status === 'completed')
+    const totalEarned = completed.reduce((s, b) => s + (b.service_price || 0), 0)
+
+    const displayed = activeTab === 'all' ? bookings : bookings.filter(b => b.status === activeTab)
+
+    if (loading) return (
+        <main className={styles.main}>
+            <div style={{ gridColumn:'1/-1', textAlign:'center', padding:'80px', color:'var(--text-light)' }}>Loading...</div>
+        </main>
+    )
 
     return (
         <main className={styles.main}>
-            <div className={styles.sidebar}>
+
+            {/* SIDEBAR */}
+            <aside className={styles.sidebar}>
                 <div className={styles.profile}>
                     <div className={styles.artistPhoto}>
-                        <img src={artist.photo} alt={artist.name} />
+                        {profile?.photo
+                            ? <img src={profile.photo} alt={profile.name} />
+                            : <div style={{ width:'100%', height:'100%', background:'var(--blush)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'32px' }}>💅</div>
+                        }
                     </div>
-                    <div className={styles.profileName}>{artist.name}</div>
-                    <div className={styles.profileSpec}>{artist.specialty.join(' · ')}</div>
-                    <div className={styles.ratingBadge}>⭐ {artist.rating} · {artist.reviews} reviews</div>
+                    <div className={styles.profileName}>{profile?.name}</div>
+                    <div className={styles.profileSpec}>{profile?.specialty?.slice(0,2).join(' · ')}</div>
+                    <span className={styles.ratingBadge}>⭐ {Number(profile?.rating || 0).toFixed(1)}</span>
                 </div>
 
-                <div className={styles.linkBox}>
-                    <div className={styles.linkLabel}>Your unique link</div>
-                    <div className={styles.linkValue}>{uniqueLink}</div>
-                    <button
-                        className={styles.copyBtn}
-                        onClick={() => {
-                            navigator.clipboard.writeText(uniqueLink)
-                            alert('Link copied!')
-                        }}
-                    >
-                        Copy Link
-                    </button>
-                </div>
+                {profile && (
+                    <div className={styles.linkBox}>
+                        <div className={styles.linkLabel}>Your booking link</div>
+                        <div className={styles.linkValue}>lazure.com/artist/{profile.username}</div>
+                        <button
+                            className={styles.copyBtn}
+                            onClick={() => navigator.clipboard.writeText(`${window.location.origin}/artist/${profile.username}`).then(() => alert('Copied!'))}
+                        >
+                            Copy Link
+                        </button>
+                    </div>
+                )}
 
                 <nav className={styles.nav}>
                     {[
-                        { icon: '📅', label: 'Bookings', tab: 'bookings' },
-                        { icon: '🕐', label: 'Schedule', tab: 'schedule' },
-                        { icon: '🖼️', label: 'Portfolio', tab: 'portfolio' },
-                        { icon: '⚙️', label: 'Settings', tab: null },
+                        { id: 'bookings',  icon: '📅', label: 'Bookings' },
+                        { id: 'schedule',  icon: '🗓', label: 'Schedule' },
+                        { id: 'portfolio', icon: '🖼', label: 'Portfolio' },
+                        { id: 'earnings',  icon: '💳', label: 'Earnings' },
                     ].map(item => (
                         <div
-                            key={item.label}
-                            className={`${styles.navItem} ${activeTab === item.tab ? styles.navActive : ''}`}
-                            onClick={() => item.tab && setActiveTab(item.tab as typeof activeTab)}
+                            key={item.id}
+                            className={`${styles.navItem} ${activeNav === item.id ? styles.navActive : ''}`}
+                            onClick={() => setActiveNav(item.id)}
                         >
                             <span>{item.icon}</span>
-                            {item.label}
+                            <span>{item.label}</span>
                         </div>
                     ))}
                 </nav>
 
-                <button className={styles.logoutBtn} onClick={() => navigate('/')}>
-                    ← Sign Out
-                </button>
-            </div>
+                <button className={styles.logoutBtn} onClick={() => { clearAuth(); navigate('/') }}>Sign Out</button>
+            </aside>
 
+            {/* CONTENT */}
             <div className={styles.content}>
 
                 {/* STATS */}
                 <div className={styles.stats}>
                     {[
-                        { label: 'This Month', value: '24', sub: 'bookings' },
-                        { label: 'Pending', value: '2', sub: 'to confirm' },
-                        { label: 'Revenue', value: '192,000', sub: '֏ this month' },
-                        { label: 'Rating', value: '4.9★', sub: '142 reviews' },
-                    ].map(stat => (
-                        <div key={stat.label} className={styles.statCard}>
-                            <div className={styles.statValue}>{stat.value}</div>
-                            <div className={styles.statLabel}>{stat.label}</div>
-                            <div className={styles.statSub}>{stat.sub}</div>
+                        { value: pending.length,                    label: 'Pending',   sub: 'Need confirmation' },
+                        { value: confirmed.length,                  label: 'Confirmed', sub: 'Upcoming sessions' },
+                        { value: completed.length,                  label: 'Completed', sub: 'All time' },
+                        { value: `${totalEarned.toLocaleString()} ֏`, label: 'Earned',   sub: 'This month' },
+                    ].map((s, i) => (
+                        <div key={i} className={styles.statCard}>
+                            <div className={styles.statValue}>{s.value}</div>
+                            <div className={styles.statLabel}>{s.label}</div>
+                            <div className={styles.statSub}>{s.sub}</div>
                         </div>
                     ))}
                 </div>
 
-                {/* BOOKINGS TAB */}
-                {activeTab === 'bookings' && (
-                    <div>
+                {/* BOOKINGS */}
+                {activeNav === 'bookings' && (
+                    <>
                         <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>Incoming Bookings</h2>
+                            <div>
+                                <h2 className={styles.sectionTitle}>Bookings</h2>
+                                <p className={styles.sectionSub}>{bookings.length} total appointments</p>
+                            </div>
                         </div>
+
                         <div className={styles.tabs}>
-                            <button
-                                className={`${styles.tab} ${bookingTab === 'upcoming' ? styles.tabActive : ''}`}
-                                onClick={() => setBookingTab('upcoming')}
-                            >Upcoming
-                            </button>
-                            <button
-                                className={`${styles.tab} ${bookingTab === 'past' ? styles.tabActive : ''}`}
-                                onClick={() => setBookingTab('past')}
-                            >Past
-                            </button>
+                            {[
+                                { id: 'all',       label: `All (${bookings.length})` },
+                                { id: 'pending',   label: `Pending (${pending.length})` },
+                                { id: 'confirmed', label: `Confirmed (${confirmed.length})` },
+                                { id: 'completed', label: `Completed (${completed.length})` },
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
+                                    onClick={() => setActiveTab(tab.id)}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
                         </div>
+
                         <div className={styles.bookingsList}>
-                            {mockBookings.map(booking => {
-                                const status = statusColor[booking.status as keyof typeof statusColor]
+                            {displayed.length === 0 && (
+                                <div style={{ textAlign:'center', padding:'60px', color:'var(--text-light)' }}>No bookings yet</div>
+                            )}
+                            {displayed.map(booking => {
+                                const st = STATUS_COLORS[booking.status] || STATUS_COLORS.pending
+                                const initials = (booking.client_name || 'C').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0,2)
                                 return (
                                     <div key={booking.id} className={styles.bookingCard}>
                                         <div className={styles.clientInfo}>
-                                            <div className={styles.clientAvatar}>{booking.clientName[0]}</div>
+                                            <div className={styles.clientAvatar}>{initials}</div>
                                             <div>
-                                                <div className={styles.clientName}>{booking.clientName}</div>
-                                                <div className={styles.clientPhone}>{booking.phone}</div>
+                                                <div className={styles.clientName}>{booking.client_name || 'Client'}</div>
+                                                {booking.client_phone && (
+                                                    <div className={styles.clientPhone}>{booking.client_phone}</div>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className={styles.bookingService}>{booking.service}</div>
+
+                                        <div className={styles.bookingService}>{booking.service_name}</div>
+
                                         <div className={styles.bookingDateTime}>
-                                            <div className={styles.bookingDate}>📅 {booking.date}</div>
-                                            <div className={styles.bookingTime}>🕐 {booking.time}</div>
+                                            <div className={styles.bookingDate}>
+                                                {new Date(booking.date).toLocaleDateString('en-US', { weekday:'short', day:'numeric', month:'short' })}
+                                            </div>
+                                            <div className={styles.bookingTime}>{booking.time?.slice(0,5)}</div>
                                         </div>
-                                        <div
-                                            className={styles.statusBadge}
-                                            style={{ background: status.bg, color: status.text }}
-                                        >
-                                            {status.label}
-                                        </div>
+
+                                        <span className={styles.statusBadge} style={{ background: st.bg, color: st.color }}>
+                                            {STATUS_LABELS[booking.status]}
+                                        </span>
+
                                         {booking.status === 'pending' && (
                                             <div className={styles.actionBtns}>
-                                                <button className={styles.confirmBtn}>✓ Confirm</button>
-                                                <button className={styles.rejectBtn}>✕</button>
+                                                <button className={styles.confirmBtn} onClick={() => handleStatus(booking.id, 'confirmed')}>Confirm</button>
+                                                <button className={styles.rejectBtn}  onClick={() => handleStatus(booking.id, 'cancelled')}>✕</button>
                                             </div>
+                                        )}
+                                        {booking.status === 'confirmed' && (
+                                            <button
+                                                className={styles.confirmBtn}
+                                                onClick={() => handleStatus(booking.id, 'completed')}
+                                                style={{ background:'var(--deep-rose)' }}
+                                            >Done ✓</button>
                                         )}
                                     </div>
                                 )
                             })}
                         </div>
-                    </div>
+                    </>
                 )}
 
-                {/* SCHEDULE TAB */}
-                {activeTab === 'schedule' && (
-                    <div>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>My Schedule</h2>
-                            <p className={styles.sectionSub}>Set your working hours and days off</p>
-                        </div>
-                        <div className={styles.scheduleGrid}>
-                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, i) => (
-                                <div key={day} className={styles.scheduleDay}>
-                                    <div className={styles.scheduleDayName}>{day}</div>
-                                    <div className={styles.scheduleToggle}>
-                                        <input type="checkbox" defaultChecked={i < 5} id={day} />
-                                        <label htmlFor={day}>{i < 5 ? '10:00 — 19:00' : 'Day off'}</label>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                {activeNav !== 'bookings' && (
+                    <div style={{ textAlign:'center', padding:'80px', color:'var(--text-light)' }}>
+                        {activeNav === 'schedule'  && '🗓 Schedule — coming soon'}
+                        {activeNav === 'portfolio' && '🖼 Portfolio — coming soon'}
+                        {activeNav === 'earnings'  && `💳 Total earned: ${totalEarned.toLocaleString()} ֏`}
                     </div>
                 )}
-
-                {/* PORTFOLIO TAB */}
-                {activeTab === 'portfolio' && (
-                    <div>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>My Portfolio</h2>
-                            <button className={styles.uploadBtn}>+ Upload Photo</button>
-                        </div>
-                        <div className={styles.portfolioGrid}>
-                            {[artist.photo, artist.photo, artist.photo, artist.photo].map((photo, i) => (
-                                <div key={i} className={styles.portfolioItem}>
-                                    <img src={photo} alt={`work ${i}`} />
-                                    <button className={styles.deletePhoto}>✕</button>
-                                </div>
-                            ))}
-                            <div className={styles.uploadPlaceholder}>
-                                <div className={styles.uploadIcon}>+</div>
-                                <div>Add photo</div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
             </div>
+
         </main>
     )
 }

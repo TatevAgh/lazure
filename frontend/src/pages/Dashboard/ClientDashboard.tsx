@@ -1,136 +1,176 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { artists } from '../../data/mockData'
 import styles from './ClientDashboard.module.css'
+import { getMyBookings, updateBookingStatus, type BookingOut } from '../../api/bookings'
+import { getStoredUser, clearAuth, isLoggedIn } from '../../api/auth'
 
-const mockBookings = [
-    { id: '1', artistId: '1', service: 'Nail Art', date: 'March 15, 2026', time: '14:00', status: 'confirmed' },
-    { id: '2', artistId: '2', service: 'Gel Polish', date: 'March 20, 2026', time: '11:00', status: 'pending' },
-    { id: '3', artistId: '3', service: 'Manicure', date: 'February 28, 2026', time: '15:30', status: 'confirmed' },
-]
-
-const statusColor = {
-    confirmed: { bg: '#E8F5E8', text: '#5A8A5A', label: 'Confirmed' },
-    pending: { bg: '#FFF8E8', text: '#B8860B', label: 'Pending' },
-    cancelled: { bg: '#FDE8E8', text: '#B07060', label: 'Cancelled' },
+const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
+    pending:   { bg: '#FFF8E1', color: '#F9A825' },
+    confirmed: { bg: '#E8F5E9', color: '#2E7D32' },
+    cancelled: { bg: '#FFEBEE', color: '#C62828' },
+    completed: { bg: '#F3E5F5', color: '#6A1B9A' },
+}
+const STATUS_LABELS: Record<string, string> = {
+    pending: 'Pending', confirmed: 'Confirmed', cancelled: 'Cancelled', completed: 'Completed',
 }
 
 const ClientDashboard = () => {
     const navigate = useNavigate()
-    const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming')
+    const user = getStoredUser()
 
-    const upcoming = mockBookings.filter(b => b.status !== 'cancelled' && b.date >= 'March 10')
-    const history = mockBookings.filter(b => b.date < 'March 10' || b.status === 'cancelled')
+    const [bookings, setBookings]   = useState<BookingOut[]>([])
+    const [loading, setLoading]     = useState(true)
+    const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
+    const [activeNav, setActiveNav] = useState('bookings')
 
-    const bookings = activeTab === 'upcoming' ? upcoming : history
+    useEffect(() => {
+        if (!isLoggedIn()) { navigate('/auth'); return }
+        getMyBookings()
+            .then(setBookings)
+            .catch(console.error)
+            .finally(() => setLoading(false))
+    }, [])
+
+    const handleCancel = async (id: number) => {
+        if (!confirm('Cancel this appointment?')) return
+        await updateBookingStatus(id, 'cancelled')
+        setBookings(prev => prev.map(b => b.id === id ? { ...b, status: 'cancelled' as const } : b))
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0]
+    const upcoming = bookings.filter(b => b.status !== 'cancelled' && b.status !== 'completed' && b.date >= todayStr)
+    const past     = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled' || b.date < todayStr)
+    const displayed = activeTab === 'upcoming' ? upcoming : past
+
+    const initials = (user.name || 'U').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+    if (loading) return (
+        <main className={styles.main}>
+            <div style={{ gridColumn:'1/-1', textAlign:'center', padding:'80px', color:'var(--text-light)' }}>Loading...</div>
+        </main>
+    )
 
     return (
         <main className={styles.main}>
-            <div className={styles.sidebar}>
+
+            {/* SIDEBAR */}
+            <aside className={styles.sidebar}>
                 <div className={styles.profile}>
-                    <div className={styles.avatar}>T</div>
-                    <div className={styles.profileName}>Tatevik</div>
-                    <div className={styles.profilePhone}>+374 96 773 737</div>
+                    <div className={styles.avatar}>{initials}</div>
+                    <div className={styles.profileName}>{user.name || 'Guest'}</div>
+                    <div className={styles.profilePhone}>LaZure Client</div>
                 </div>
 
                 <nav className={styles.nav}>
                     {[
-                        { icon: '📅', label: 'My Bookings', active: true },
-                        { icon: '❤️', label: 'Saved Artists', active: false },
-                        { icon: '⭐', label: 'My Reviews', active: false },
-                        { icon: '⚙️', label: 'Settings', active: false },
+                        { id: 'bookings',   icon: '📅', label: 'My Bookings' },
+                        { id: 'favorites',  icon: '♡',  label: 'Saved Artists' },
+                        { id: 'settings',   icon: '⚙',  label: 'Settings' },
                     ].map(item => (
                         <div
-                            key={item.label}
-                            className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}
+                            key={item.id}
+                            className={`${styles.navItem} ${activeNav === item.id ? styles.navActive : ''}`}
+                            onClick={() => setActiveNav(item.id)}
                         >
                             <span>{item.icon}</span>
-                            {item.label}
+                            <span>{item.label}</span>
                         </div>
                     ))}
                 </nav>
 
-                <button className={styles.logoutBtn} onClick={() => navigate('/')}>
-                    ← Sign Out
+                <button className={styles.logoutBtn} onClick={() => { clearAuth(); navigate('/') }}>
+                    Sign Out
                 </button>
-            </div>
+            </aside>
 
+            {/* CONTENT */}
             <div className={styles.content}>
                 <div className={styles.header}>
                     <div>
-                        <h1 className={styles.title}>My Bookings</h1>
-                        <p className={styles.sub}>Manage your nail appointments</p>
+                        <h1 className={styles.title}>
+                            {activeNav === 'bookings' ? 'My Bookings' : activeNav === 'favorites' ? 'Saved Artists' : 'Settings'}
+                        </h1>
+                        {activeNav === 'bookings' && (
+                            <p className={styles.sub}>{upcoming.length} upcoming appointments</p>
+                        )}
                     </div>
-                    <button
-                        className={styles.bookBtn}
-                        onClick={() => navigate('/artists')}
-                    >
-                        + New Booking
-                    </button>
+                    <button className={styles.bookBtn} onClick={() => navigate('/artists')}>Book Now</button>
                 </div>
 
-                {/* TABS */}
-                <div className={styles.tabs}>
-                    <button
-                        className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('upcoming')}
-                    >
-                        Upcoming ({upcoming.length})
-                    </button>
-                    <button
-                        className={`${styles.tab} ${activeTab === 'history' ? styles.tabActive : ''}`}
-                        onClick={() => setActiveTab('history')}
-                    >
-                        History ({history.length})
-                    </button>
-                </div>
-
-                {/* BOOKINGS */}
-                <div className={styles.bookingsList}>
-                    {bookings.length === 0 ? (
-                        <div className={styles.empty}>
-                            <div className={styles.emptyIcon}>💅</div>
-                            <p>No bookings yet</p>
-                            <button className={styles.bookBtn} onClick={() => navigate('/artists')}>
-                                Find an Artist
+                {activeNav === 'bookings' && (
+                    <>
+                        <div className={styles.tabs}>
+                            <button
+                                className={`${styles.tab} ${activeTab === 'upcoming' ? styles.tabActive : ''}`}
+                                onClick={() => setActiveTab('upcoming')}
+                            >
+                                Upcoming ({upcoming.length})
+                            </button>
+                            <button
+                                className={`${styles.tab} ${activeTab === 'past' ? styles.tabActive : ''}`}
+                                onClick={() => setActiveTab('past')}
+                            >
+                                Past ({past.length})
                             </button>
                         </div>
-                    ) : (
-                        bookings.map(booking => {
-                            const artist = artists.find(a => a.id === booking.artistId)
-                            const status = statusColor[booking.status as keyof typeof statusColor]
-                            return (
-                                <div key={booking.id} className={styles.bookingCard}>
-                                    <div className={styles.bookingArtist}>
-                                        <img
-                                            src={artist?.photo}
-                                            alt={artist?.name}
-                                            className={styles.bookingPhoto}
-                                        />
-                                        <div>
-                                            <div className={styles.bookingArtistName}>{artist?.name}</div>
-                                            <div className={styles.bookingService}>{booking.service}</div>
+
+                        {displayed.length === 0 ? (
+                            <div className={styles.empty}>
+                                <div className={styles.emptyIcon}>📅</div>
+                                <p>No {activeTab === 'upcoming' ? 'upcoming' : 'past'} appointments</p>
+                            </div>
+                        ) : (
+                            <div className={styles.bookingsList}>
+                                {displayed.map(booking => {
+                                    const st = STATUS_COLORS[booking.status] || STATUS_COLORS.pending
+                                    return (
+                                        <div key={booking.id} className={styles.bookingCard}>
+                                            <div className={styles.bookingArtist}>
+                                                {booking.artist_photo
+                                                    ? <img src={booking.artist_photo} alt={booking.artist_name} className={styles.bookingPhoto} />
+                                                    : <div style={{ width:56, height:56, borderRadius:'50%', background:'var(--blush)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'24px', flexShrink:0 }}>💅</div>
+                                                }
+                                                <div>
+                                                    <div className={styles.bookingArtistName}>{booking.artist_name}</div>
+                                                    <div className={styles.bookingService}>{booking.service_name}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.bookingDetails}>
+                                                <div className={styles.bookingDate}>
+                                                    📅 {new Date(booking.date).toLocaleDateString('en-US', { weekday:'short', day:'numeric', month:'short' })}
+                                                </div>
+                                                <div className={styles.bookingTime}>🕐 {booking.time?.slice(0,5)}</div>
+                                            </div>
+
+                                            <div className={styles.bookingStatus} style={{ background: st.bg, color: st.color }}>
+                                                {STATUS_LABELS[booking.status]}
+                                            </div>
+
+                                            {booking.status === 'pending' && (
+                                                <button className={styles.cancelBtn} onClick={() => handleCancel(booking.id)}>
+                                                    Cancel
+                                                </button>
+                                            )}
                                         </div>
-                                    </div>
-                                    <div className={styles.bookingDetails}>
-                                        <div className={styles.bookingDate}>📅 {booking.date}</div>
-                                        <div className={styles.bookingTime}>🕐 {booking.time}</div>
-                                    </div>
-                                    <div
-                                        className={styles.bookingStatus}
-                                        style={{ background: status.bg, color: status.text }}
-                                    >
-                                        {status.label}
-                                    </div>
-                                    {activeTab === 'upcoming' && (
-                                        <button className={styles.cancelBtn}>Cancel</button>
-                                    )}
-                                </div>
-                            )
-                        })
-                    )}
-                </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {activeNav === 'favorites' && (
+                    <div className={styles.empty}>
+                        <div className={styles.emptyIcon}>♡</div>
+                        <p>No saved artists yet</p>
+                    </div>
+                )}
+                {activeNav === 'settings' && (
+                    <div style={{ color:'var(--text-light)', padding:'40px 0' }}>Settings coming soon...</div>
+                )}
             </div>
+
         </main>
     )
 }

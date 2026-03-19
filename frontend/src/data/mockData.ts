@@ -4,6 +4,13 @@ import photo3 from '../assets/images/photo3.jpg'
 import photo4 from '../assets/images/photo4.jpg'
 import type { Artist, Service } from '../types'
 
+export const cachedPhotos = [
+    photo1,
+    photo2,
+    photo3,
+    photo4
+]
+
 export const artists: Artist[] = [
     {
         id: '1',

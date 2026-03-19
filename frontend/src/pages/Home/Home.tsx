@@ -3,12 +3,29 @@ import photo1 from '../../assets/images/photo1.jpg'
 import photo2 from '../../assets/images/photo2.jpg'
 import photo3 from '../../assets/images/photo3.jpg'
 import { useNavigate } from 'react-router-dom'
-import { artists } from '../../data/mockData'
-
-
+import { useEffect, useState } from 'react';
+import { cachedPhotos } from '../../data/mockData.ts'
+import { type ArtistListItem, getArtists } from '../../api/artists.ts';
 
 const Home = () => {
     const navigate = useNavigate();
+
+    const [artists, setArtists] = useState<ArtistListItem[]>([])
+    // const [loading, setLoading] = useState(true)
+    // const [error, setError] = useState('')
+
+
+    useEffect(() => {
+        getArtists()
+            .then((data) => {
+                // assign photos cyclically
+                const enriched = data.map((artist, index) => ({
+                    ...artist,
+                    photo: cachedPhotos[index % cachedPhotos.length]
+                }))
+                setArtists(enriched)
+            })
+    }, [])
 
     return (
         <main className={styles.main}>
@@ -127,7 +144,7 @@ const Home = () => {
             <div className={styles.artistsGrid}>
                 {artists.slice(0, 3).map((artist) => (
                     <div key={artist.id} className={styles.artistCard}
-                         onClick={() => navigate(`/artist/${artist.username}`)}>
+                         onClick={() => navigate(`/booking/${artist.username}`)}>
                         <div className={styles.artistImg}>
                             <img src={artist.photo} alt={artist.name}/>
                             <div className={styles.artistBadge}>
@@ -144,7 +161,7 @@ const Home = () => {
                             </div>
                             <button
                                 className={styles.bookBtn}
-                                onClick={() => navigate(`/booking/${artist.id}`)}
+                                onClick={() => navigate(`/booking/${artist.username}`)}
                             >
                                 Book Now
                             </button>

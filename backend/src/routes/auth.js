@@ -1,9 +1,10 @@
-const router = require('express').Router();
-const { register, login, getMe } = require('../controllers/authController');
-const {authenticate} = require('../middleware/auth');
+const router = require('express').Router()
+const { sendOtp, verifyOtp, getMe, updateMe } = require('../controllers/authController')
+const { authenticate } = require('../middleware/auth')
 
-router.post('/register', register);  // POST /api/auth/register
-router.post('/login', login);       // POST /api/auth/login
-router.get('/me', authenticate, getMe); // GET /api/auth/me (нужен токен)
+router.post('/send-otp',   sendOtp)                       // POST /api/auth/send-otp
+router.post('/verify-otp', verifyOtp)                     // POST /api/auth/verify-otp
+router.get('/me',          authenticate, getMe)           // GET  /api/auth/me
+router.patch('/me',        authenticate, updateMe)        // PATCH /api/auth/me
 
 module.exports = router

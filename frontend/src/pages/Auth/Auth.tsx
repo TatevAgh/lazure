@@ -1,52 +1,119 @@
-import { useState } from 'react'
+// SMS (Twilio) — закомментировано, подключим позже
+// Сейчас: код печатается в консоль бэкенда + показывается в UI
+
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styles from './Auth.module.css'
+import { api } from '../../api/client'
 
 type Step = 'role' | 'phone' | 'otp'
 type Role = 'client' | 'artist'
 
+interface AuthResponse {
+    token: string
+    user: { id: number; name: string | null; phone: string; role: 'client' | 'artist' | 'admin' }
+}
+
+const saveAuth = (data: AuthResponse) => {
+    localStorage.setItem('lazure_token', data.token)
+    localStorage.setItem('lazure_user_id', String(data.user.id))
+    localStorage.setItem('lazure_role', data.user.role)
+    if (data.user.name) localStorage.setItem('lazure_name', data.user.name)
+}
+
 const Auth = () => {
     const navigate = useNavigate()
+
     const [step, setStep] = useState<Step>('role')
-    const [role, setRole] = useState<Role | null>(null)
     const [phone, setPhone] = useState('')
+    const [role, setRole] = useState<Role | null>(null)
     const [otp, setOtp] = useState(['', '', '', ''])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+    const [devCode, setDevCode] = useState('') // показываем код в dev режиме
+
+    const otpRefs = [
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+        useRef<HTMLInputElement>(null),
+    ]
 
     const handleRoleSelect = (r: Role) => {
         setRole(r)
         setStep('phone')
     }
 
-    const handlePhoneSubmit = () => {
-        if (phone.length < 8) return
-        setStep('otp')
-    }
+    const handleSendCode = async () => {
+        setError('')
+        const fullPhone = phone.startsWith('+') ? phone : `+374${phone}`
+        if (fullPhone.length < 10) { setError('Enter Phone number'); return }
 
-    const handleOtpChange = (index: number, value: string) => {
-        if (value.length > 1) return
-        if (value && !/^\d$/.test(value)) return  // только цифры!
-        const newOtp = [...otp]
-        newOtp[index] = value
-        setOtp(newOtp)
-        if (value && index < 3) {
-            const next = document.getElementById(`otp-${index + 1}`)
-            next?.focus()
+        setLoading(true)
+        try {
+            // DEV: бэкенд возвращает код напрямую (SMS отключён)
+            // PROD: заменить на Twilio в authController.js — там всё закомментировано
+            const data = await api.post<{ code?: string }>('/api/auth/send-otp', { phone: fullPhone })
+
+            if (data?.code) setDevCode(String(data.code))
+            setStep('otp')
+            console.log(devCode, 'devcode -------------');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Sending error')
+        } finally {
+            setLoading(false)
         }
     }
 
-    const handleConfirm = () => {
-        alert('✅ Successfully signed in!')
-        navigate('/')
+    // Ввод OTP — один символ, автопереход
+    const handleOtpChange = (index: number, value: string) => {
+        const digit = value.replace(/\D/g, '').slice(-1)
+        const newOtp = [...otp]
+        newOtp[index] = digit
+        setOtp(newOtp)
+
+        if (digit && index < 3) otpRefs[index + 1].current?.focus()
+        if (newOtp.every(d => d !== '') && digit) handleVerify(newOtp.join(''))
+    }
+
+    const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+        if (e.key === 'Backspace' && !otp[index] && index > 0) otpRefs[index - 1].current?.focus()
+    }
+
+    const handleVerify = async (code?: string) => {
+        setError('')
+        const fullPhone = phone.startsWith('+') ? phone : `+374${phone}`
+        const finalCode = code || otp.join('')
+        if (finalCode.length !== 4) { setError('Enter 4-digit code'); return }
+
+        setLoading(true)
+        try {
+            const data = await api.post<AuthResponse>('/api/auth/verify-otp', {
+                phone: fullPhone,
+                code: finalCode,
+            })
+            saveAuth(data)
+
+            if (data.user.role === 'admin')       navigate('/admin')
+            else if (data.user.role === 'artist') navigate('/dashboard/artist')
+            else                                   navigate('/dashboard/client')
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Invalid code')
+            setOtp(['', '', '', ''])
+            otpRefs[0].current?.focus()
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
         <main className={styles.main}>
             <div className={styles.card}>
 
-                {/* LOGO */}
                 <div className={styles.logo}>La<span>Zure</span></div>
 
-                {/* STEP: ROLE */}
+
+                {/* STEP1: ROLE */}
                 {step === 'role' && (
                     <div className={styles.section}>
                         <h1 className={styles.title}>Welcome back</h1>
@@ -72,68 +139,100 @@ const Auth = () => {
                     </div>
                 )}
 
-                {/* STEP: PHONE */}
+                {/* STEP 2 — Phone */}
                 {step === 'phone' && (
                     <div className={styles.section}>
                         <button className={styles.back} onClick={() => setStep('role')}>← Back</button>
-                        <h1 className={styles.title}>
-                            {role === 'client' ? 'Sign in as Client' : 'Sign in as Artist'}
-                        </h1>
-                        <p className={styles.sub}>Enter your phone number to continue</p>
+                        <h1 className={styles.title}>Login</h1>
+                        <p className={styles.sub}>Enter your number and we'll send you a confirmation code.</p>
+
                         <div className={styles.phoneInput}>
                             <span className={styles.phonePrefix}>+374</span>
                             <input
-                                type="tel"
-                                placeholder="XX XXX XXX"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
                                 className={styles.input}
-                                maxLength={8}
+                                type="tel"
+                                placeholder="91 234 567"
+                                value={phone}
+                                onChange={e => setPhone(e.target.value.replace(/\D/g, ''))}
+                                onKeyDown={e => e.key === 'Enter' && handleSendCode()}
                                 autoFocus
+                                maxLength={9}
                             />
                         </div>
+
+                        {error && <p style={{color: 'var(--deep-rose)', fontSize: '13px'}}>{error}</p>}
+
                         <button
                             className={styles.btnPrimary}
-                            disabled={phone.length < 8}
-                            onClick={handlePhoneSubmit}
+                            onClick={handleSendCode}
+                            disabled={loading || phone.length < 8}
                         >
-                            Send Code →
+                            {loading ? 'Sending...' : 'Get code'}
                         </button>
-                        <p className={styles.hint}>We'll send a 4-digit code via SMS</p>
                     </div>
                 )}
 
-                {/* STEP: OTP */}
+                {/* Step 3 — OTP */}
                 {step === 'otp' && (
                     <div className={styles.section}>
+
                         <button className={styles.back} onClick={() => setStep('phone')}>← Back</button>
-                        <h1 className={styles.title}>Enter the code</h1>
-                        <p className={styles.sub}>Sent to +374 {phone}</p>
+
+                        {/*<button className={styles.back} onClick={handleBack}>← Изменить номер</button>*/}
+
+                        <h1 className={styles.title}>
+                            {role === 'client' ? 'Sign in as Client' : 'Sign in as Artist'}
+                        </h1>
+                        <p className={styles.sub}>Sent to +374{phone}</p>
+
+                        {/* Dev подсказка — убрать в проде */}
+                        {devCode && (
+                            <div style={{
+                                background: 'var(--blush)',
+                                border: '1px solid var(--rose)',
+                                borderRadius: '12px',
+                                padding: '12px 16px',
+                                fontSize: '13px',
+                                color: 'var(--deep-rose)',
+                                textAlign: 'center',
+                            }}>
+                                🔧Dev mode - code:{' '}
+                                <strong style={{fontSize: '22px', letterSpacing: '4px'}}>{devCode}</strong>
+                            </div>
+                        )}
+
                         <div className={styles.otpGrid}>
                             {otp.map((digit, i) => (
                                 <input
                                     key={i}
-                                    id={`otp-${i}`}
-                                    type="tel"
+                                    ref={otpRefs[i]}
+                                    className={styles.otpInput}
+                                    type="text"
+                                    inputMode="numeric"
                                     maxLength={1}
                                     value={digit}
-                                    onChange={(e) => handleOtpChange(i, e.target.value)}
-                                    className={styles.otpInput}
+                                    onChange={e => handleOtpChange(i, e.target.value)}
+                                    onKeyDown={e => handleOtpKeyDown(i, e)}
                                     autoFocus={i === 0}
                                 />
                             ))}
                         </div>
+
+                        {error &&
+                            <p style={{color: 'var(--deep-rose)', fontSize: '13px', textAlign: 'center'}}>{error}</p>}
+
                         <button
                             className={styles.btnPrimary}
-                            disabled={otp.some(d => d === '')}
-                            onClick={handleConfirm}
+                            onClick={() => handleVerify()}
+                            disabled={loading || otp.some(d => d === '')}
                         >
-                            Confirm →
+                            {loading ? 'Checking...' : 'Sign in'}
                         </button>
+
                         <p className={styles.hint}>
-                            Didn't receive it?{' '}
-                            <button className={styles.resend} onClick={() => setOtp(['', '', '', ''])}>
-                                Resend
+                            Didn't receive the code?{' '}
+                            <button className={styles.resend} onClick={handleSendCode}>
+                                Send again
                             </button>
                         </p>
                     </div>
