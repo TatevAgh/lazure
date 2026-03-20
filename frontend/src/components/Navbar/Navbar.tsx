@@ -16,6 +16,10 @@ const Navbar = () => {
                 <li><Link to="/artists" onClick={() => setMenuOpen(false)}>Find an Artist</Link></li>
                 <li><Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link></li>
                 <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
+                <li className={styles.mobileActions}>
+                    <Link to="/auth" className={styles.btnOutline} onClick={() => setMenuOpen(false)}>Sign in</Link>
+                    <Link to="/booking" className={styles.btnFilled} onClick={() => setMenuOpen(false)}>Book Now</Link>
+                </li>
             </ul>
 
             <div className={styles.navActions}>
