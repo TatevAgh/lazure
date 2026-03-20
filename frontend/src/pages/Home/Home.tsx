@@ -41,7 +41,7 @@ const Home = () => {
                         check availability, and book your perfect appointment — all in one place.
                     </p>
                     <div className={styles.heroCta}>
-                        <button className={styles.btnPrimary}>Find an Artist</button>
+                        <button className={styles.btnPrimary} onClick={() => navigate('/artists')}>Find an Artist</button>
                         <button className={styles.btnGhost}>See how it works</button>
                     </div>
                     <div className={styles.heroStats}>

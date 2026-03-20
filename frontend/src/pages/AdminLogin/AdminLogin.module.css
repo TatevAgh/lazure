@@ -1,0 +1,154 @@
+.main {
+    min-height: 100vh;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.card {
+    background: var(--warm-white);
+    border-radius: 24px;
+    padding: 48px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: var(--dark);
+    margin-bottom: 8px;
+}
+.logo span { color: var(--deep-rose); }
+
+.adminLabel {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 40px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+}
+
+.back {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    padding: 0;
+    width: fit-content;
+    transition: color 0.3s;
+}
+.back:hover { color: var(--navy); }
+
+.title {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--dark);
+}
+
+.sub {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 300;
+    margin-top: -8px;
+}
+
+.phoneInput {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+}
+.phoneInput:focus-within { border-color: var(--navy); }
+
+.prefix {
+    padding: 14px 16px;
+    background: var(--cream);
+    font-size: 15px;
+    color: var(--text);
+    border-right: 1px solid var(--border);
+    font-weight: 500;
+}
+
+.input {
+    flex: 1;
+    padding: 14px 16px;
+    border: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--text);
+    background: white;
+    letter-spacing: 2px;
+}
+
+.otpInput {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 8px;
+    text-align: center;
+    color: var(--navy);
+    outline: none;
+    font-family: var(--font-body);
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+.otpInput:focus { border-color: var(--navy); }
+
+.devCode {
+    background: var(--blush);
+    border: 1px solid var(--rose);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--deep-rose);
+    text-align: center;
+}
+
+.error {
+    color: var(--deep-rose);
+    font-size: 13px;
+    text-align: center;
+}
+
+.btn {
+    padding: 14px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+}
+.btn:hover:not(:disabled) {
+    background: var(--navy-light);
+    transform: translateY(-1px);
+}
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}

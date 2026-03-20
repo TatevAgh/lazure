@@ -1,17 +1,14 @@
-// SMS (Twilio) — закомментировано, подключим позже
-// Сейчас: код печатается в консоль бэкенда + показывается в UI
-
 import { useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import styles from './Auth.module.css'
 import { api } from '../../api/client'
 
 type Step = 'role' | 'phone' | 'otp'
-type Role = 'client' | 'artist'
+type Role = 'client' | 'artist' | 'admin'
 
 interface AuthResponse {
     token: string
-    user: { id: number; name: string | null; phone: string; role: 'client' | 'artist' | 'admin' }
+    user: { id: number; name: string | null; phone: string; role: Role }
 }
 
 const saveAuth = (data: AuthResponse) => {
@@ -23,6 +20,8 @@ const saveAuth = (data: AuthResponse) => {
 
 const Auth = () => {
     const navigate = useNavigate()
+    const location = useLocation()
+    const redirectTo = (location.state as { redirectTo?: string })?.redirectTo
 
     const [step, setStep] = useState<Step>('role')
     const [phone, setPhone] = useState('')
@@ -30,7 +29,7 @@ const Auth = () => {
     const [otp, setOtp] = useState(['', '', '', ''])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
-    const [devCode, setDevCode] = useState('') // показываем код в dev режиме
+    const [devCode, setDevCode] = useState('')
 
     const otpRefs = [
         useRef<HTMLInputElement>(null),
@@ -46,18 +45,13 @@ const Auth = () => {
 
     const handleSendCode = async () => {
         setError('')
-        const fullPhone = phone.startsWith('+') ? phone : `+374${phone}`
-        if (fullPhone.length < 10) { setError('Enter Phone number'); return }
-
+        const fullPhone = `+374${phone}`
+        if (phone.length < 8) { setError('Enter phone number'); return }
         setLoading(true)
         try {
-            // DEV: бэкенд возвращает код напрямую (SMS отключён)
-            // PROD: заменить на Twilio в authController.js — там всё закомментировано
             const data = await api.post<{ code?: string }>('/api/auth/send-otp', { phone: fullPhone })
-
             if (data?.code) setDevCode(String(data.code))
             setStep('otp')
-            console.log(devCode, 'devcode -------------');
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Sending error')
         } finally {
@@ -65,13 +59,11 @@ const Auth = () => {
         }
     }
 
-    // Ввод OTP — один символ, автопереход
     const handleOtpChange = (index: number, value: string) => {
         const digit = value.replace(/\D/g, '').slice(-1)
         const newOtp = [...otp]
         newOtp[index] = digit
         setOtp(newOtp)
-
         if (digit && index < 3) otpRefs[index + 1].current?.focus()
         if (newOtp.every(d => d !== '') && digit) handleVerify(newOtp.join(''))
     }
@@ -82,10 +74,9 @@ const Auth = () => {
 
     const handleVerify = async (code?: string) => {
         setError('')
-        const fullPhone = phone.startsWith('+') ? phone : `+374${phone}`
+        const fullPhone = `+374${phone}`
         const finalCode = code || otp.join('')
         if (finalCode.length !== 4) { setError('Enter 4-digit code'); return }
-
         setLoading(true)
         try {
             const data = await api.post<AuthResponse>('/api/auth/verify-otp', {
@@ -94,9 +85,15 @@ const Auth = () => {
             })
             saveAuth(data)
 
-            if (data.user.role === 'admin')       navigate('/admin')
-            else if (data.user.role === 'artist') navigate('/dashboard/artist')
-            else                                   navigate('/dashboard/client')
+            if (redirectTo) {
+                navigate(redirectTo, { replace: true })
+            } else if (data.user.role === 'admin') {
+                navigate('/admin')
+            } else if (data.user.role === 'artist') {
+                navigate('/dashboard/artist')
+            } else {
+                navigate('/dashboard/client')
+            }
         } catch (err: unknown) {
             setError(err instanceof Error ? err.message : 'Invalid code')
             setOtp(['', '', '', ''])
@@ -109,28 +106,19 @@ const Auth = () => {
     return (
         <main className={styles.main}>
             <div className={styles.card}>
-
                 <div className={styles.logo}>La<span>Zure</span></div>
 
-
-                {/* STEP1: ROLE */}
                 {step === 'role' && (
                     <div className={styles.section}>
                         <h1 className={styles.title}>Welcome back</h1>
                         <p className={styles.sub}>How are you joining us today?</p>
                         <div className={styles.roleGrid}>
-                            <button
-                                className={styles.roleCard}
-                                onClick={() => handleRoleSelect('client')}
-                            >
+                            <button className={styles.roleCard} onClick={() => handleRoleSelect('client')}>
                                 <div className={styles.roleIcon}>💅</div>
                                 <div className={styles.roleName}>I'm a Client</div>
                                 <div className={styles.roleDesc}>Book nail appointments</div>
                             </button>
-                            <button
-                                className={styles.roleCard}
-                                onClick={() => handleRoleSelect('artist')}
-                            >
+                            <button className={styles.roleCard} onClick={() => handleRoleSelect('artist')}>
                                 <div className={styles.roleIcon}>✨</div>
                                 <div className={styles.roleName}>I'm an Artist</div>
                                 <div className={styles.roleDesc}>Manage my bookings</div>
@@ -139,13 +127,11 @@ const Auth = () => {
                     </div>
                 )}
 
-                {/* STEP 2 — Phone */}
                 {step === 'phone' && (
                     <div className={styles.section}>
                         <button className={styles.back} onClick={() => setStep('role')}>← Back</button>
                         <h1 className={styles.title}>Login</h1>
-                        <p className={styles.sub}>Enter your number and we'll send you a confirmation code.</p>
-
+                        <p className={styles.sub}>Enter your number and we'll send a confirmation code.</p>
                         <div className={styles.phoneInput}>
                             <span className={styles.phonePrefix}>+374</span>
                             <input
@@ -159,9 +145,7 @@ const Auth = () => {
                                 maxLength={9}
                             />
                         </div>
-
-                        {error && <p style={{color: 'var(--deep-rose)', fontSize: '13px'}}>{error}</p>}
-
+                        {error && <p style={{ color: 'var(--deep-rose)', fontSize: '13px' }}>{error}</p>}
                         <button
                             className={styles.btnPrimary}
                             onClick={handleSendCode}
@@ -172,14 +156,9 @@ const Auth = () => {
                     </div>
                 )}
 
-                {/* Step 3 — OTP */}
                 {step === 'otp' && (
                     <div className={styles.section}>
-
                         <button className={styles.back} onClick={() => setStep('phone')}>← Back</button>
-
-                        {/*<button className={styles.back} onClick={handleBack}>← Изменить номер</button>*/}
-
                         <h1 className={styles.title}>
                             {role === 'client' ? 'Sign in as Client' : 'Sign in as Artist'}
                         </h1>
@@ -196,11 +175,9 @@ const Auth = () => {
                                 color: 'var(--deep-rose)',
                                 textAlign: 'center',
                             }}>
-                                🔧Dev mode - code:{' '}
-                                <strong style={{fontSize: '22px', letterSpacing: '4px'}}>{devCode}</strong>
+                                🔧 Dev mode — code: <strong style={{ fontSize: '22px', letterSpacing: '4px' }}>{devCode}</strong>
                             </div>
                         )}
-
                         <div className={styles.otpGrid}>
                             {otp.map((digit, i) => (
                                 <input
@@ -217,10 +194,7 @@ const Auth = () => {
                                 />
                             ))}
                         </div>
-
-                        {error &&
-                            <p style={{color: 'var(--deep-rose)', fontSize: '13px', textAlign: 'center'}}>{error}</p>}
-
+                        {error && <p style={{ color: 'var(--deep-rose)', fontSize: '13px', textAlign: 'center' }}>{error}</p>}
                         <button
                             className={styles.btnPrimary}
                             onClick={() => handleVerify()}
@@ -228,16 +202,12 @@ const Auth = () => {
                         >
                             {loading ? 'Checking...' : 'Sign in'}
                         </button>
-
                         <p className={styles.hint}>
                             Didn't receive the code?{' '}
-                            <button className={styles.resend} onClick={handleSendCode}>
-                                Send again
-                            </button>
+                            <button className={styles.resend} onClick={handleSendCode}>Send again</button>
                         </p>
                     </div>
                 )}
-
             </div>
         </main>
     )

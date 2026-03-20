@@ -1,0 +1,221 @@
+.main {
+    padding-top: var(--nav-height);
+    min-height: 100vh;
+    background: var(--cream);
+}
+
+.hero {
+    padding: 80px 60px;
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--deep-rose);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.tag::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--rose);
+}
+
+.title {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--dark);
+    line-height: 1.1;
+    margin-bottom: 24px;
+}
+.title em {
+    font-style: italic;
+    color: var(--deep-rose);
+}
+
+.desc {
+    font-size: 16px;
+    color: var(--text-light);
+    line-height: 1.8;
+    font-weight: 300;
+    max-width: 480px;
+}
+
+.heroStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+}
+
+.stat {
+    background: var(--cream);
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.statNumber {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 300;
+    color: var(--navy);
+    margin-bottom: 8px;
+}
+
+.statLabel {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+
+.mission {
+    padding: 100px 60px;
+}
+
+.missionContent {}
+
+.sectionTag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--deep-rose);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.sectionTag::before {
+    content: '';
+    width: 24px;
+    height: 1px;
+    background: var(--rose);
+}
+
+.sectionTitle {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--dark);
+    margin-bottom: 56px;
+    line-height: 1.15;
+}
+.sectionTitle em {
+    font-style: italic;
+    color: var(--deep-rose);
+}
+
+.values {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    background: var(--border);
+}
+
+.valueCard {
+    background: var(--warm-white);
+    padding: 48px 40px;
+    transition: background 0.3s;
+}
+.valueCard:hover { background: var(--blush); }
+
+.valueIcon { font-size: 36px; margin-bottom: 20px; }
+
+.valueTitle {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--dark);
+    margin-bottom: 12px;
+}
+
+.valueDesc {
+    font-size: 14px;
+    color: var(--text-light);
+    line-height: 1.7;
+    font-weight: 300;
+}
+
+.cta {
+    margin: 0 60px 80px;
+    padding: 72px 56px;
+    background: var(--navy);
+    border-radius: 24px;
+    text-align: center;
+    color: white;
+}
+
+.ctaTitle {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 300;
+    margin-bottom: 16px;
+}
+
+.ctaSub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+    margin-bottom: 40px;
+    line-height: 1.7;
+}
+
+.ctaBtns {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ctaBtnPrimary {
+    padding: 14px 40px;
+    background: white;
+    color: var(--navy);
+    border: none;
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.ctaBtnPrimary:hover { background: var(--blush); transform: translateY(-1px); }
+
+.ctaBtnGhost {
+    padding: 14px 40px;
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.ctaBtnGhost:hover { border-color: white; color: white; }
+
+@media (max-width: 1024px) {
+    .hero { grid-template-columns: 1fr; gap: 48px; }
+    .sectionTitle { font-size: 36px; }
+}
+
+@media (max-width: 768px) {
+    .hero { padding: 48px 24px; }
+    .title { font-size: 40px; }
+    .heroStats { grid-template-columns: 1fr 1fr; }
+    .mission { padding: 60px 24px; }
+    .values { grid-template-columns: 1fr; }
+    .cta { margin: 0 24px 48px; padding: 48px 24px; }
+    .ctaTitle { font-size: 30px; }
+}
